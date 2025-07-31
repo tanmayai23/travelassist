@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { HorizonFeed } from "@/components/HorizonFeed";
 import { JourneyLog } from "@/components/JourneyLog";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { RouteInput } from "@/components/RouteInput";
+import { MoodSelector } from "@/components/MoodSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +24,8 @@ export default function TravelApp() {
   const [activeTab, setActiveTab] = useState("discover");
   const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for night driving
+  const [currentRoute, setCurrentRoute] = useState<{ from: string; to: string } | null>(null);
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   useEffect(() => {
     // Apply dark mode class to document
@@ -44,18 +48,41 @@ export default function TravelApp() {
     setSavedPlaces(prev => prev.filter(place => place.id !== id));
   };
 
+  const handleRouteSet = (from: string, to: string) => {
+    setCurrentRoute({ from, to });
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "discover":
-        return <HorizonFeed onSavePlace={handleSavePlace} />;
+        return (
+          <div className="space-y-4">
+            <div className="p-4">
+              <MoodSelector selectedMood={selectedMood} onMoodSelect={setSelectedMood} />
+            </div>
+            <HorizonFeed onSavePlace={handleSavePlace} selectedMood={selectedMood} />
+          </div>
+        );
       case "saved":
         return <JourneyLog savedPlaces={savedPlaces} onRemovePlace={handleRemovePlace} />;
       case "profile":
         return <ProfileTab />;
       case "settings":
-        return <SettingsTab isDarkMode={isDarkMode} onToggleDarkMode={setIsDarkMode} />;
+        return <SettingsTab 
+          isDarkMode={isDarkMode} 
+          onToggleDarkMode={setIsDarkMode}
+          currentRoute={currentRoute}
+          onRouteSet={handleRouteSet}
+        />;
       default:
-        return <HorizonFeed onSavePlace={handleSavePlace} />;
+        return (
+          <div className="space-y-4">
+            <div className="p-4">
+              <MoodSelector selectedMood={selectedMood} onMoodSelect={setSelectedMood} />
+            </div>
+            <HorizonFeed onSavePlace={handleSavePlace} selectedMood={selectedMood} />
+          </div>
+        );
     }
   };
 
@@ -70,10 +97,10 @@ export default function TravelApp() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-card-foreground">Travel Assist</h1>
-              <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                <MapPin className="w-3 h-3" />
-                <span>Highway 101 North</span>
-              </div>
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+              <MapPin className="w-3 h-3" />
+              <span>{currentRoute ? `${currentRoute.from} → ${currentRoute.to}` : "Set your route in Settings"}</span>
+            </div>
             </div>
           </div>
           
@@ -157,12 +184,21 @@ function ProfileTab() {
 }
 
 // Settings Tab Component
-function SettingsTab({ isDarkMode, onToggleDarkMode }: { 
+function SettingsTab({ 
+  isDarkMode, 
+  onToggleDarkMode,
+  currentRoute,
+  onRouteSet
+}: { 
   isDarkMode: boolean; 
-  onToggleDarkMode: (dark: boolean) => void; 
+  onToggleDarkMode: (dark: boolean) => void;
+  currentRoute: { from: string; to: string } | null;
+  onRouteSet: (from: string, to: string) => void;
 }) {
   return (
     <div className="flex-1 p-4 space-y-6">
+      <RouteInput onRouteSet={onRouteSet} currentRoute={currentRoute} />
+      
       <Card>
         <CardHeader>
           <CardTitle>Display Settings</CardTitle>
