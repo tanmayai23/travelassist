@@ -61,7 +61,18 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Travel Assist Brand Colors
+				discovery: {
+					DEFAULT: 'hsl(var(--discovery))',
+					foreground: 'hsl(var(--discovery-foreground))',
+					muted: 'hsl(var(--discovery-muted))'
+				},
+				nature: 'hsl(var(--nature))',
+				history: 'hsl(var(--history))',
+				food: 'hsl(var(--food))',
+				art: 'hsl(var(--art))',
+				quirky: 'hsl(var(--quirky))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
